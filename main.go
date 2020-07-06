@@ -6,6 +6,7 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 	"sync"
 )
 
@@ -14,21 +15,39 @@ type URLholder struct {
 	mu      sync.RWMutex
 }
 
+var store = NewUrlholder()
+var key string
+
+func NewUrlholder() *URLholder {
+	return &URLholder{
+		tinyrul: make(map[string]string),
+		mu:      sync.RWMutex{},
+	}
+}
+
+const AddForm = `
+	<html><body>
+	<form method="POST" action="/add">
+    URL: <input type="text" name="url">
+    <input type="submit" value="Add">
+    </form>
+    <\html><\body>`
+
 func (s *URLholder) Get(keyv string) string {
 
 	s.mu.RLock()
-	defer s.mu.Unlock()
+	defer s.mu.RUnlock()
 	url := s.tinyrul[keyv]
 
 	return url
 }
 
-func (s *URLholder) Set(value string) bool {
+func (s *URLholder) put(value string) bool {
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	key := getkey(value)
+	key = getkey(value)
 	_, present := s.tinyrul[key]
 
 	if present {
@@ -44,11 +63,50 @@ func (s *URLholder) Set(value string) bool {
 
 func getkey(val string) string {
 
-	key := val[:1]
+	key := val[13:18]
 
 	return key
 }
 
+func Add(w http.ResponseWriter, r *http.Request) {
+	fmt.Println("inside add function:")
+	url := r.FormValue("url")
+	w.Header().Set("Content-Type", "text/html")
+	if url == "" {
+		fmt.Fprint(w, AddForm)
+		return
+	}
+
+	keyval := store.put(url)
+	var tinyurl string
+
+	if keyval {
+		tinyurl = key
+	}
+
+	fmt.Fprintf(w, "%s", tinyurl)
+}
+
+func Redirect(w http.ResponseWriter, r *http.Request) {
+
+	rkey := r.URL.Path[1:]
+	fmt.Println("inside redirect retrieved key", rkey)
+	rurl := store.Get(rkey)
+	fmt.Println("original url retrived", rurl)
+	if rurl == "" {
+		http.NotFound(w, r)
+		return
+	}
+	http.Redirect(w, r, rurl, http.StatusFound)
+}
+
 func main() {
-	fmt.Println("Hello..world")
+
+	port := ":3000"
+	fmt.Println("Starting http server")
+
+	http.HandleFunc("/", Redirect)
+	http.HandleFunc("/add", Add)
+	http.ListenAndServe(port, nil)
+	fmt.Println("listening on:", port)
 }
