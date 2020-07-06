@@ -1,6 +1,6 @@
 // Write a program for Tiny URL
 // The program accepts a lengthy url for a website and converts in to a tiny url and stores it
-// when you request with tiny url id it will redirct you the the original site representing the tiny URL
+// when you request with tiny url id it will redirect you the the original site representing the tiny URL
 // Also our service needs to handle multiple concurrent requests so we need to design to avoid concurrency issues.
 package main
 
@@ -92,7 +92,7 @@ func Redirect(w http.ResponseWriter, r *http.Request) {
 	rkey := r.URL.Path[1:]
 	fmt.Println("inside redirect retrieved key", rkey)
 	rurl := store.Get(rkey)
-	fmt.Println("original url retrived", rurl)
+	fmt.Println("original url retrieved", rurl)
 	if rurl == "" {
 		http.NotFound(w, r)
 		return
