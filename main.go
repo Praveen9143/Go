@@ -31,7 +31,7 @@ const AddForm = `
     URL: <input type="text" name="url">
     <input type="submit" value="Add">
     </form>
-    <\html><\body>`
+    </html></body>`
 
 func (s *URLholder) Get(keyv string) string {
 
