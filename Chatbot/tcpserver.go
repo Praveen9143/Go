@@ -6,21 +6,21 @@ import (
 )
 
 func main() {
-	
+
 	fmt.Println("starting TCP server on  localhost:5000")
 
 	//listen on tcp port 5000
-	listener,err := net.Listen("tcp","localhost:5000")
+	listener, err := net.Listen("tcp", "localhost:5000")
 
-    if err != nil{
-    	fmt.Println("Error Listening",err.Error())
+	if err != nil {
+		fmt.Println("Error Listening", err.Error())
 	}
 
-	for{
+	for {
 
 		conn, err := listener.Accept()
 
-		if err != nil{
+		if err != nil {
 
 			return //terminate program
 		}
@@ -31,26 +31,25 @@ func main() {
 
 }
 
-func serveconnection( connectin net.Conn)  {
+func serveconnection(connectin net.Conn) {
 
 	for {
 
-		for{
+		for {
 
-			buff := make([] byte, 512)
+			buff := make([]byte, 512)
 			_, err := connectin.Read(buff)
 
-			if err != nil{
+			if err != nil {
 
-				fmt.Println("Error reading buffer ",err.Error())
+				fmt.Println("Error reading buffer ", err.Error())
 
 				return //terminate program
 			}
 
-			fmt.Printf("Receive data: %v",string(buff))
+			fmt.Printf("Receive data: %v", string(buff))
 
 		}
-
 
 	}
 
