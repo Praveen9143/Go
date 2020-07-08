@@ -1,2 +1,0 @@
-# Go
-Fun go projects
